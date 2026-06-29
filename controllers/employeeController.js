@@ -1,23 +1,32 @@
 import Employee from "../models/Employee.js";
 
+// Helper function to add full image URL
+const formatEmployee = (employee, req) => {
+  return {
+    ...employee.toObject(),
+    profileImage: employee.profileImage
+      ? `${req.protocol}://${req.get("host")}/${employee.profileImage.replace(/\\/g, "/")}`
+      : "",
+  };
+};
+
 export const createEmployee = async (req, res) => {
   try {
-   const employee = await Employee.create({
-  fullName: req.body.fullName,
-  email: req.body.email,
-  phoneNumber: req.body.phoneNumber,
-  department: req.body.department,
-  designation: req.body.designation,
-  salary: req.body.salary,
-  profileImage: req.file
-    ? req.file.path
-    : "",
-});
+   // console.log(req.file);
+    const employee = await Employee.create({
+      fullName: req.body.fullName,
+      email: req.body.email,
+      phoneNumber: req.body.phoneNumber,
+      department: req.body.department,
+      designation: req.body.designation,
+      salary: req.body.salary,
+      profileImage: req.file ? req.file.path.replace(/\\/g, "/") : "",
+    });
 
     res.status(201).json({
       success: true,
       message: "Employee created successfully",
-      data: employee,
+      data: formatEmployee(employee, req),
     });
   } catch (error) {
     res.status(500).json({
@@ -31,10 +40,14 @@ export const getAllEmployees = async (req, res) => {
   try {
     const employees = await Employee.find();
 
+    const updatedEmployees = employees.map((employee) =>
+      formatEmployee(employee, req)
+    );
+
     res.status(200).json({
       success: true,
-      count: employees.length,
-      data: employees,
+      count: updatedEmployees.length,
+      data: updatedEmployees,
     });
   } catch (error) {
     res.status(500).json({
@@ -57,7 +70,7 @@ export const getEmployeeById = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      data: employee,
+      data: formatEmployee(employee, req),
     });
   } catch (error) {
     res.status(500).json({
@@ -88,7 +101,7 @@ export const updateEmployee = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Employee updated successfully",
-      data: employee,
+      data: formatEmployee(employee, req),
     });
   } catch (error) {
     res.status(500).json({
@@ -100,9 +113,7 @@ export const updateEmployee = async (req, res) => {
 
 export const deleteEmployee = async (req, res) => {
   try {
-    const employee = await Employee.findByIdAndDelete(
-      req.params.id
-    );
+    const employee = await Employee.findByIdAndDelete(req.params.id);
 
     if (!employee) {
       return res.status(404).json({
@@ -134,10 +145,14 @@ export const searchEmployee = async (req, res) => {
       },
     });
 
+    const updatedEmployees = employees.map((employee) =>
+      formatEmployee(employee, req)
+    );
+
     res.status(200).json({
       success: true,
-      count: employees.length,
-      data: employees,
+      count: updatedEmployees.length,
+      data: updatedEmployees,
     });
   } catch (error) {
     res.status(500).json({
@@ -155,10 +170,14 @@ export const filterEmployee = async (req, res) => {
       department,
     });
 
+    const updatedEmployees = employees.map((employee) =>
+      formatEmployee(employee, req)
+    );
+
     res.status(200).json({
       success: true,
-      count: employees.length,
-      data: employees,
+      count: updatedEmployees.length,
+      data: updatedEmployees,
     });
   } catch (error) {
     res.status(500).json({
