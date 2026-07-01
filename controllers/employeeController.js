@@ -38,7 +38,24 @@ export const createEmployee = async (req, res) => {
 
 export const getAllEmployees = async (req, res) => {
   try {
-    const employees = await Employee.find();
+    const { search, department } = req.query;
+
+    const query = {};
+
+    // Search by full name
+    if (search) {
+      query.fullName = {
+        $regex: search,
+        $options: "i",
+      };
+    }
+
+    // Filter by department
+    if (department && department !== "All") {
+      query.department = department;
+    }
+
+    const employees = await Employee.find(query);
 
     const updatedEmployees = employees.map((employee) =>
       formatEmployee(employee, req)

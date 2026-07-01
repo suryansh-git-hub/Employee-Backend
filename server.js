@@ -4,6 +4,7 @@ import connectDB from "./config/db.js";
 import employeeRoutes from "./routes/employeeRoutes.js";
 import logger from "./middleware/logger.js";
 import cors from "cors";
+import authRoutes from "./routes/authRoutes.js";
 
 dotenv.config();
 
@@ -22,6 +23,8 @@ app.use(logger);
 app.use("/uploads", express.static("uploads"));
 
 app.use("/api/employees", employeeRoutes);
+
+app.use("/api/auth", authRoutes);
 
 app.get("/", (req, res) => {
   res.json({

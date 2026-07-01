@@ -9,16 +9,18 @@ import {
   filterEmployee
 } from "../controllers/employeeController.js";
 import upload from "../middleware/upload.js";
+import authMiddleware from "../middleware/authMiddleware.js";
+import adminMiddleware from "../middleware/adminMiddleware.js";
 
 const router = express.Router();
 
-router.post("/", upload.single("profileImage"),
+router.post("/", authMiddleware,adminMiddleware, upload.single("profileImage"),
 createEmployee);
 router.get("/", getAllEmployees);
-router.get("/search", searchEmployee);
-router.get("/filter", filterEmployee);
+router.get("/", getAllEmployees);
 router.get("/:id", getEmployeeById);
-router.put("/:id", updateEmployee);
-router.delete("/:id", deleteEmployee);
+router.get("/:id", getEmployeeById);
+router.put("/:id", authMiddleware, adminMiddleware,updateEmployee);
+router.delete("/:id",authMiddleware, adminMiddleware,deleteEmployee);
 
 export default router;
